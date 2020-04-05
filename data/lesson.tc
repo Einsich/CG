@@ -1,0 +1,42 @@
+#version 410 core
+#define id gl_InvocationID
+
+layout(vertices = 3) out;
+// from vertex shader
+in VertexCS
+{
+	vec3 position;
+	vec2 texcoord;
+	vec3 normal;
+	float tesLevel;
+} vertcs[];
+
+// to evaluation shader
+out VertexES
+{
+	vec3 position;
+	vec2 texcoord;
+	vec3 normal;
+	float tesLevel;
+} vertes[];
+float max3(float a, float b, float c)
+{
+	return max(a,max(b,c));
+}
+void main(void)
+{	
+	vertes[id].position = vertcs[id].position;
+	vertes[id].texcoord = vertcs[id].texcoord;
+	vertes[id].normal = vertcs[id].normal;	
+	vertes[id].tesLevel = vertcs[id].tesLevel;
+	
+	if (0 == id) {
+ 
+    // Вычисление уровня тесселяции
+    gl_TessLevelOuter[0] = max(vertcs[1].tesLevel,vertcs[2].tesLevel);
+    gl_TessLevelOuter[1] = max(vertcs[2].tesLevel,vertcs[1].tesLevel);
+    gl_TessLevelOuter[2] = max(vertcs[0].tesLevel,vertcs[1].tesLevel);
+    gl_TessLevelInner[0] = gl_TessLevelInner[1] = max3(vertcs[0].tesLevel,vertcs[1].tesLevel,vertcs[2].tesLevel);
+	}
+	gl_out [id].gl_Position = gl_in[id].gl_Position;
+}
